@@ -715,11 +715,15 @@
         }
 
         async function refreshData() {
-            document.SHEET_URL = document.SHEET_URL + '&minute_uid=' + Date.now().toFixed().slice(0, 9);
+            let tidVal = Date.now().toFixed().slice(0, 9);
+            let sheetUrl = new URL(document.SHEET_URL);
+            sheetUrl.searchParams.set('minute_uid', tidVal);
 
             if (isLocal() || document.debugOn) {
-                document.SHEET_URL = document.SHEET_URL + '&uitime=' + Date.now();
+                sheetUrl.searchParams.set('utime', Date.now());
             }
+
+            document.SHEET_URL = sheetUrl.toString();
 
             console.log('document.SHEET_URL', document.SHEET_URL);
 
@@ -730,7 +734,8 @@
             finalUrl.searchParams.set('source', encodedSheetUrl);
 
             if (document.debugOn) {
-                finalUrl.searchParams.set('cache_on', Date.now());
+                finalUrl.searchParams.set('cache_tid', Date.now());
+                finalUrl.searchParams.set('no-cache', 'true');
             }
 
             console.log('finalUrl.toString()', finalUrl.toString());
