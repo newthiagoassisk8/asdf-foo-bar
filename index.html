@@ -680,7 +680,7 @@
                 return 'data' in contentData ? contentData['data'] : contentData;
             } catch (error) {
                 if (document.debugOn) {
-                    throw new error;
+                    throw error;
                 }
 
                 console.error(error);
