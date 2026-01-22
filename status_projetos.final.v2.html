@@ -1,0 +1,990 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta
+        name="theme-color"
+        content="#0b0f14"
+    />
+    <title>Status de Projetos</title>
+    <style>
+        :root {
+            --bg: #0b0f14;
+            --card: #101826;
+            --card-2: #0f1623;
+            --text: #e7eefc;
+            --muted: #a9b7d1;
+            --line: rgba(255, 255, 255, .10);
+            --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+            --radius: 18px;
+            --pad: 14px;
+            --ok: #22c55e;
+            --warn: #f59e0b;
+            --bad: #ef4444;
+            --hold: #94a3b8;
+            --done: #60a5fa;
+            --chip: rgba(255, 255, 255, .08);
+            --focus: rgba(96, 165, 250, .35);
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --bg: #f7f9fe;
+                --card: #ffffff;
+                --card-2: #f3f6ff;
+                --text: #0c1320;
+                --muted: #49566c;
+                --line: rgba(12, 19, 32, .12);
+                --shadow: 0 10px 30px rgba(12, 19, 32, .10);
+                --chip: rgba(12, 19, 32, .06);
+                --focus: rgba(37, 99, 235, .18);
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+            background: var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        .wrap {
+            max-width: 980px;
+            margin: 0 auto;
+            padding:
+                calc(env(safe-area-inset-top) + 14px) calc(env(safe-area-inset-right) + 14px) calc(env(safe-area-inset-bottom) + 18px) calc(env(safe-area-inset-left) + 14px);
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background: color-mix(in srgb, var(--bg) 78%, transparent);
+            border-bottom: 1px solid var(--line);
+            margin: -14px -14px 14px -14px;
+            padding: 14px;
+        }
+
+        .top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .title {
+            display: grid;
+            gap: 4px;
+        }
+
+        h1 {
+            font-size: 18px;
+            margin: 0;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.2;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            border-radius: 999px;
+            background: var(--chip);
+            border: 1px solid var(--line);
+            font-size: 12px;
+            color: var(--muted);
+            user-select: none;
+        }
+
+        .controls {
+            margin-top: 12px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        @media (max-width: 380px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .field {
+            display: grid;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        input[type="search"],
+        select {
+            width: 100%;
+            border: 1px solid var(--line);
+            background: var(--card);
+            color: var(--text);
+            border-radius: 14px;
+            padding: 11px 12px;
+            font-size: 14px;
+            outline: none;
+            box-shadow: 0 0 0 0 var(--focus);
+        }
+
+        input[type="search"]:focus,
+        select:focus {
+            box-shadow: 0 0 0 4px var(--focus);
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin: 10px 0 14px;
+        }
+
+        @media (min-width: 720px) {
+            .metrics {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+
+        .metric {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .metric .k {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .metric .v {
+            margin-top: 6px;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .grid {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 720px) {
+            .grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        .card {
+            background: linear-gradient(180deg, var(--card), var(--card-2));
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 14px;
+            box-shadow: var(--shadow);
+            display: grid;
+            gap: 12px;
+        }
+
+        .cardTop {
+            display: grid;
+            gap: 8px;
+        }
+
+        .nameRow {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .projName {
+            font-weight: 800;
+            font-size: 15px;
+            letter-spacing: -0.01em;
+            line-height: 1.15;
+            margin: 0;
+        }
+
+        .chips {
+            display: inline-flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .chip {
+            font-size: 11px;
+            padding: 6px 9px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: var(--chip);
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .chip strong {
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .metaItem {
+            display: grid;
+            gap: 4px;
+            padding: 10px;
+            border-radius: 14px;
+            border: 1px solid var(--line);
+            background: color-mix(in srgb, var(--card) 60%, transparent);
+        }
+
+        .metaItem .k {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .metaItem .v {
+            font-size: 13px;
+            font-weight: 650;
+            letter-spacing: -0.01em;
+        }
+
+        .progress {
+            display: grid;
+            gap: 8px;
+        }
+
+        .bar {
+            height: 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .10);
+            border: 1px solid var(--line);
+            overflow: hidden;
+        }
+
+        .fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 999px;
+            transition: width 300ms ease;
+        }
+
+        .progressRow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .note {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.35;
+            border-left: 3px solid var(--line);
+            padding-left: 10px;
+        }
+
+        .empty {
+            padding: 18px;
+            border: 1px dashed var(--line);
+            border-radius: var(--radius);
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .btnRow {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        button {
+            appearance: none;
+            border: 1px solid var(--line);
+            background: var(--card);
+            color: var(--text);
+            border-radius: 14px;
+            padding: 10px 12px;
+            font-size: 13px;
+            font-weight: 650;
+            cursor: pointer;
+            box-shadow: 0 0 0 0 var(--focus);
+        }
+
+        button:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px var(--focus);
+        }
+
+        button.secondary {
+            background: transparent;
+        }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: calc(env(safe-area-inset-bottom) + 16px);
+            background: color-mix(in srgb, var(--card) 85%, transparent);
+            border: 1px solid var(--line);
+            padding: 10px 12px;
+            border-radius: 999px;
+            box-shadow: var(--shadow);
+            font-size: 12px;
+            color: var(--muted);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 200ms ease, transform 200ms ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-4px);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <header>
+            <div class="top">
+                <div class="title">
+                    <h1>Status de Projetos</h1>
+                    <div class="subtitle">Dashboard mobile (responsivo) — filtro, busca e visão rápida de saúde e
+                        progresso.</div>
+                </div>
+                <div
+                    class="pill"
+                    id="lastSync"
+                    aria-label="Última atualização"
+                >
+                    <span aria-hidden="true">⟳</span>
+                    <span id="lastSyncText">Atualizando…</span>
+                </div>
+            </div>
+
+            <div
+                class="controls"
+                role="region"
+                aria-label="Controles"
+            >
+                <div class="field">
+                    <label for="q">Busca (nome, squad, sponsor, tags)</label>
+                    <input
+                        id="q"
+                        type="search"
+                        placeholder="Ex.: ISO, Dinov, Vikings…"
+                        autocomplete="off"
+                    />
+                </div>
+                <div class="row">
+                    <div class="field">
+                        <label for="status">Status</label>
+                        <select id="status">
+                            <option value="ALL">Todos</option>
+                            <option value="ON_TRACK">On track</option>
+                            <option value="AT_RISK">At risk</option>
+                            <option value="OFF_TRACK">Off track</option>
+                            <option value="ON_HOLD">On hold</option>
+                            <option value="DONE">Done</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="sort">Ordenação</label>
+                        <select id="sort">
+                            <option value="UPDATED_DESC">Última atualização (↓)</option>
+                            <option value="UPDATED_ASC">Última atualização (↑)</option>
+                            <option value="PROGRESS_DESC">Progresso (↓)</option>
+                            <option value="PROGRESS_ASC">Progresso (↑)</option>
+                            <option value="NAME_ASC">Nome (A→Z)</option>
+                            <option value="NAME_DESC">Nome (Z→A)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="btnRow">
+                    <button
+                        class="secondary"
+                        id="reset"
+                    >Limpar filtros</button>
+                    <button id="export">Exportar CSV</button>
+                </div>
+            </div>
+        </header>
+
+        <section
+            class="metrics"
+            aria-label="Métricas"
+        >
+            <div class="metric">
+                <div class="k">Total</div>
+                <div
+                    class="v"
+                    id="mTotal"
+                >–</div>
+            </div>
+            <div class="metric">
+                <div class="k">On track</div>
+                <div
+                    class="v"
+                    id="mOk"
+                >–</div>
+            </div>
+            <div class="metric">
+                <div class="k">At risk</div>
+                <div
+                    class="v"
+                    id="mWarn"
+                >–</div>
+            </div>
+            <div class="metric">
+                <div class="k">Off track</div>
+                <div
+                    class="v"
+                    id="mBad"
+                >–</div>
+            </div>
+        </section>
+
+        <main>
+            <div
+                class="grid"
+                id="grid"
+                aria-label="Lista de projetos"
+            ></div>
+            <div
+                class="empty"
+                id="empty"
+                hidden
+            >Nenhum projeto encontrado com os filtros atuais.</div>
+        </main>
+
+        <div
+            class="toast"
+            id="toast"
+            role="status"
+            aria-live="polite"
+        ></div>
+    </div>
+
+    <script>
+        /**
+         * DADOS DE EXEMPLO
+         * - Substitua por dados do seu backend (API) quando necessário.
+         * - Campos recomendados para governança: status/saúde, progresso, datas, sponsor, squad, riscos e próxima entrega.
+         */
+        const PROJECTS = [
+            /* {
+              id: "PRJ-001",
+              name: "Recertificação ISO (9001/27001/20000-1/27701)",
+              squad: "Qualidade",
+              sponsor: "C-Level",
+              status: "ON_TRACK",
+              progress: 68,
+              start: "2025-10-01",
+              end: "2026-02-15",
+              updatedAt: "2026-01-20T18:40:00Z",
+              nextMilestone: "Evidências consolidadas e revisão de NC",
+              risks: "Dependência de evidências de áreas e fornecedores",
+              tags: ["ISO", "Auditoria", "Compliance"]
+            },
+            {
+              id: "PRJ-002",
+              name: "Implantação UGP — Governança e Fluxos (BPMN)",
+              squad: "UGP",
+              sponsor: "Controladoria",
+              status: "AT_RISK",
+              progress: 44,
+              start: "2025-12-05",
+              end: "2026-03-01",
+              updatedAt: "2026-01-19T14:10:00Z",
+              nextMilestone: "Fluxos em BPMN 2.0 no repositório padrão",
+              risks: "Alinhamento entre NIT/FINOV/Terracap e times técnicos",
+              tags: ["BPMN", "Governança", "SEI"]
+            },
+            {
+              id: "PRJ-003",
+              name: "Portal de Indicadores — Política e Ritual Mensal",
+              squad: "PMO/Qualidade",
+              sponsor: "CEO",
+              status: "ON_TRACK",
+              progress: 57,
+              start: "2025-11-10",
+              end: "2026-04-30",
+              updatedAt: "2026-01-18T22:05:00Z",
+              nextMilestone: "Consolidação do mês (D+5) e semáforo",
+              risks: "Dados inconsistentes e falta de dono por indicador",
+              tags: ["KPI", "BSC", "Governança"]
+            },
+            {
+              id: "PRJ-004",
+              name: "Modernização de Infra (SLA/Observabilidade)",
+              squad: "TI",
+              sponsor: "Diretoria",
+              status: "OFF_TRACK",
+              progress: 31,
+              start: "2025-09-15",
+              end: "2026-01-31",
+              updatedAt: "2026-01-15T10:35:00Z",
+              nextMilestone: "SLOs definidos e dashboards por serviço",
+              risks: "Capacidade do time e backlog de incidentes",
+              tags: ["SLA", "SRE", "DORA"]
+            },
+            {
+              id: "PRJ-005",
+              name: "Programa de Parcerias — Pipeline e Critérios",
+              squad: "Inovação",
+              sponsor: "DINOV",
+              status: "ON_HOLD",
+              progress: 12,
+              start: "2025-12-20",
+              end: "2026-06-30",
+              updatedAt: "2026-01-10T09:00:00Z",
+              nextMilestone: "Retomada após definição de orçamento",
+              risks: "Dependência de decisão estratégica e funding",
+              tags: ["Parcerias", "Captação"]
+            },
+            {
+              id: "PRJ-006",
+              name: "Onboarding Técnico — Template e Confluence",
+              squad: "TI",
+              sponsor: "Gente e Gestão",
+              status: "DONE",
+              progress: 100,
+              start: "2025-11-01",
+              end: "2025-12-20",
+              updatedAt: "2025-12-20T18:00:00Z",
+              nextMilestone: "–",
+              risks: "–",
+              tags: ["Onboarding", "Processo"]
+            } */
+        ];
+
+        const $ = (sel) => document.querySelector(sel);
+        const grid = $("#grid");
+        const empty = $("#empty");
+
+        const q = $("#q");
+        const status = $("#status");
+        const sort = $("#sort");
+        const resetBtn = $("#reset");
+        const exportBtn = $("#export");
+
+        const toast = $("#toast");
+
+        const STATUS_LABEL = {
+            ON_TRACK: "On track",
+            AT_RISK: "At risk",
+            OFF_TRACK: "Off track",
+            ON_HOLD: "On hold",
+            DONE: "Done"
+        };
+
+        /* BEGIN Thiago Assis */
+        document.SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSm0RIYw6c7JNorQaH2TlQJv27_umansgaIFfnEknNTtTo4IgDGd2KRf6u_-4US1Fya2zNWP2TuCmK3/pub?gid=865796183&single=true&output=tsv';
+
+        function isLocal() {
+            if (!location.origin || !location.host || ['null'].includes(location.origin)) {
+                return true;
+            }
+
+            return ['localhost', '127.0.0.1'].filter(h => location?.host?.includes(h)).length > 0;
+        }
+
+        function debugIsOn(defaultValue = false) {
+            return Number(localStorage.getItem('debugOn') || '1') > 0;
+        }
+
+        document.debugOn = isLocal() || debugIsOn();
+
+        async function fetchSheetData(url, options = {}) {
+            if (typeof url !== 'string' || url.trim() === '') {
+                throw new Error('Invalid URL');
+            }
+
+            options = options || {};
+
+            if (typeof options !== 'object' && Array.isArray(options)) {
+                options = {};
+            }
+
+            method = options['method'] || 'GET';
+            headers = options['headers'] || 'GET';
+
+            try {
+                const res = await fetch(url, {
+                    method,
+                    headers: {
+                        // 'Accept': 'text/tab-separated-values'
+                    }
+                });
+
+                if (!res.ok) {
+                    throw new Error(`Failed to fetch data: ${res.status} ${res.statusText}`);
+                }
+
+                const content = await res.text();
+
+                if (!content || typeof content !== 'string') {
+                    throw new Error(`Invalid JSON data.\nStatus: ${res.status} ${res.statusText}\nContent: ${content}\n`);
+                }
+
+                let contentData = JSON.parse(content) || {}
+
+                return 'data' in contentData ? contentData['data'] : contentData;
+            } catch (error) {
+                if (document.debugOn) {
+                    throw new error;
+                }
+
+                console.error(error);
+                return [];
+            }
+        }
+
+        function prepareRow(row) {
+            if (!row || typeof row !== 'object' || Array.isArray(row)) {
+                row = {}
+            }
+
+            row = {
+                id: row?.id || null,
+                name: row?.name || null,
+                squad: row?.squad || null,
+                sponsor: row?.sponsor || null,
+                status: row?.status || null,
+                progress: row?.progress || null,
+                start: row?.start || null,
+                end: row?.end || null,
+                updatedAt: row?.updatedAt || null,
+                nextMilestone: row?.nextMilestone || null,
+                risks: row?.risks || null,
+                tags: row?.tags || null,
+                ...row,
+            };
+
+            row.tags = String(row.tags || '')?.split(',').map(i => i.trim()).filter(Boolean);
+
+            return row;
+        }
+
+        async function refreshData() {
+            document.SHEET_URL = document.SHEET_URL + '&minute_uid=' + Date.now().toFixed().slice(0, 9);
+
+            if (isLocal() || document.debugOn) {
+                document.SHEET_URL = document.SHEET_URL + '&uitime=' + Date.now();
+            }
+
+            console.log('document.SHEET_URL', document.SHEET_URL);
+
+            const encodedSheetUrl = encodeURIComponent(document.SHEET_URL);
+            let finalUrl = new URL(`https://csv-to-json-api.vercel.app/`);
+            finalUrl.searchParams.set('delimiter', 'TAB');
+            finalUrl.searchParams.set('type', 'csv');
+            finalUrl.searchParams.set('source', encodedSheetUrl);
+
+            if (document.debugOn) {
+                finalUrl.searchParams.set('cache_on', Date.now());
+            }
+
+            console.log('finalUrl.toString()', finalUrl.toString());
+
+            try {
+                const rows = await fetchSheetData(finalUrl.toString())
+                console.log('rows', rows);
+                if (!rows || !Array.isArray(rows)) {
+                    throw new Error('No rows or error on fetch data');
+                }
+                PROJECTS.forEach((_, index) => {
+                    delete PROJECTS[index];
+                });
+
+                rows.forEach(row => {
+                    row = prepareRow(row);
+                    PROJECTS.push(row);
+                });
+
+                render();
+            } catch (error) {
+                if (document.debugOn) {
+                    throw error;
+                }
+
+                console.error(error)
+            }
+        }
+        /* END Thiago Assis */
+
+        function statusColor(s) {
+            switch (s) {
+                case "ON_TRACK": return getCSS("--ok");
+                case "AT_RISK": return getCSS("--warn");
+                case "OFF_TRACK": return getCSS("--bad");
+                case "ON_HOLD": return getCSS("--hold");
+                case "DONE": return getCSS("--done");
+                default: return getCSS("--hold");
+            }
+        }
+
+        function getCSS(varName) {
+            return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+        }
+
+        function fmtDate(iso) {
+            if (!iso || iso === "–") return "–";
+            const d = new Date(iso);
+            const dd = String(d.getDate()).padStart(2, "0");
+            const mm = String(d.getMonth() + 1).padStart(2, "0");
+            const yy = d.getFullYear();
+            return `${dd}/${mm}/${yy}`;
+        }
+
+        function fmtUpdated(iso) {
+            const d = new Date(iso);
+            const dd = String(d.getDate()).padStart(2, "0");
+            const mm = String(d.getMonth() + 1).padStart(2, "0");
+            const yy = d.getFullYear();
+            const hh = String(d.getHours()).padStart(2, "0");
+            const mi = String(d.getMinutes()).padStart(2, "0");
+            return `${dd}/${mm}/${yy} ${hh}:${mi}`;
+        }
+
+        function normalize(str) {
+            return (str || '')?.toString()?.toLowerCase();
+        }
+
+        function applyFilters(data) {
+            const query = normalize(q.value).trim();
+            const st = status.value;
+
+            return data.filter(p => {
+                const text = [p.id, p.name, p.squad, p.sponsor, ...(p.tags || [])].map(normalize).join(" ");
+                const matchQ = query ? text.includes(query) : true;
+                const matchS = st === "ALL" ? true : p.status === st;
+                return matchQ && matchS;
+            });
+        }
+
+        function applySort(data) {
+            const key = sort.value;
+            const copy = [...data];
+
+            const byUpdated = (a, b) => new Date(a.updatedAt) - new Date(b.updatedAt);
+            const byProgress = (a, b) => (a.progress ?? 0) - (b.progress ?? 0);
+            const byName = (a, b) => (a.name || "").localeCompare(b.name || "", "pt-BR");
+
+            switch (key) {
+                case "UPDATED_ASC": return copy.sort(byUpdated);
+                case "UPDATED_DESC": return copy.sort((a, b) => byUpdated(b, a));
+                case "PROGRESS_ASC": return copy.sort(byProgress);
+                case "PROGRESS_DESC": return copy.sort((a, b) => byProgress(b, a));
+                case "NAME_DESC": return copy.sort((a, b) => byName(b, a));
+                case "NAME_ASC":
+                default:
+                    return copy.sort(byName);
+            }
+        }
+
+        function setMetrics(visible, all) {
+            $("#mTotal").textContent = String(visible.length);
+            $("#mOk").textContent = String(visible.filter(p => p.status === "ON_TRACK").length);
+            $("#mWarn").textContent = String(visible.filter(p => p.status === "AT_RISK").length);
+            $("#mBad").textContent = String(visible.filter(p => p.status === "OFF_TRACK").length);
+
+            const maxUpdated = all.reduce((acc, p) => {
+                const t = new Date(p.updatedAt).getTime();
+                return Math.max(acc, t);
+            }, 0);
+            $("#lastSyncText").textContent = `Atualizado: ${fmtUpdated(new Date(maxUpdated).toISOString())}`;
+        }
+
+        function projectCard(p) {
+            const color = statusColor(p.status);
+            const statusLabel = STATUS_LABEL[p.status] || p.status;
+
+            const el = document.createElement("article");
+            el.className = "card";
+            el.setAttribute("aria-label", `Projeto ${p.id} ${p.name}`);
+
+            el.innerHTML = `
+        <div class="cardTop">
+          <div class="nameRow">
+            <div>
+              <p class="projName">${escapeHtml(p.name)}</p>
+              <div class="subtitle" style="margin-top:6px;">${escapeHtml(p.id)} • Squad: ${escapeHtml(p.squad)} • Sponsor: ${escapeHtml(p.sponsor)}</div>
+            </div>
+            <div class="chips">
+              <span class="chip" style="border-color: color-mix(in srgb, ${color} 40%, var(--line));">
+                <strong style="color:${color};">●</strong> ${statusLabel}
+              </span>
+              <span class="chip">${escapeHtml(fmtDate(p.start))} → ${escapeHtml(fmtDate(p.end))}</span>
+            </div>
+          </div>
+
+          <div class="progress">
+            <div class="progressRow">
+              <span>Progresso</span>
+              <span><strong style="color: var(--text)">${Number(p.progress ?? 0)}%</strong> • Atualizado: ${escapeHtml(fmtUpdated(p.updatedAt))}</span>
+            </div>
+            <div class="bar" aria-label="Barra de progresso" role="progressbar" aria-valuenow="${Number(p.progress ?? 0)}" aria-valuemin="0" aria-valuemax="100">
+              <div class="fill" style="width:${Number(p.progress ?? 0)}%; background:${color};"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="meta">
+          <div class="metaItem">
+            <div class="k">Próxima entrega</div>
+            <div class="v">${escapeHtml(p.nextMilestone || "–")}</div>
+          </div>
+          <div class="metaItem">
+            <div class="k">Risco principal</div>
+            <div class="v">${escapeHtml(p.risks || "–")}</div>
+          </div>
+        </div>
+
+        <div class="note">
+          Tags: ${(p.tags || []).map(t => `<span class="chip" style="margin-right:6px;">${escapeHtml(t)}</span>`).join("") || "–"}
+        </div>
+      `;
+
+            return el;
+        }
+
+        function escapeHtml(str) {
+            return (str ?? "").toString()
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        function render() {
+            const filtered = applyFilters(PROJECTS);
+            const sorted = applySort(filtered);
+
+            setMetrics(sorted, PROJECTS);
+
+            grid.innerHTML = "";
+            empty.hidden = sorted.length !== 0;
+
+            sorted.forEach(p => grid.appendChild(projectCard(p)));
+        }
+
+        function showToast(msg) {
+            toast.textContent = msg;
+            toast.classList.add("show");
+            window.clearTimeout(showToast._t);
+            showToast._t = window.setTimeout(() => toast.classList.remove("show"), 1600);
+        }
+
+        function resetFilters() {
+            q.value = "";
+            status.value = "ALL";
+            sort.value = "UPDATED_DESC";
+            render();
+            showToast("Filtros limpos");
+        }
+
+        function toCSV(rows) {
+            const headers = [
+                "id", "name", "squad", "sponsor", "status", "progress", "start", "end", "updatedAt", "nextMilestone", "risks", "tags"
+            ];
+            const esc = (v) => {
+                const s = (v ?? "").toString().replaceAll('"', '""');
+                return `"${s}"`;
+            };
+
+            const lines = [headers.join(",")];
+            for (const r of rows) {
+                lines.push([
+                    r.id, r.name, r.squad, r.sponsor, STATUS_LABEL[r.status] || r.status,
+                    r.progress, r.start, r.end, r.updatedAt, r.nextMilestone, r.risks,
+                    (r.tags || []).join(";")
+                ].map(esc).join(","));
+            }
+            return lines.join("\n");
+        }
+
+        function download(filename, content, mime) {
+            const blob = new Blob([content], { type: mime });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        }
+
+        // Eventos
+        q.addEventListener("input", render);
+        status.addEventListener("change", render);
+        sort.addEventListener("change", render);
+        resetBtn.addEventListener("click", resetFilters);
+
+        exportBtn.addEventListener("click", () => {
+            const rows = applySort(applyFilters(PROJECTS));
+            const csv = toCSV(rows);
+            download("status_projetos.csv", csv, "text/csv;charset=utf-8");
+            showToast("CSV exportado");
+        });
+
+        // Inicial
+        sort.value = "UPDATED_DESC";
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            refreshData()
+        });
+    </script>
+</body>
+
+</html>
